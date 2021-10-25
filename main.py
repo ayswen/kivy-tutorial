@@ -9,8 +9,8 @@ class MainWidget(Widget):
     perspective_point_y = NumericProperty(0)
 
     # self.line = None
-    V_LINES_NB = 7
-    V_LINES_SPACING = .1  # as a percentage of screen width
+    V_LINES_NB = 10
+    V_LINES_SPACING = .2  # as a percentage of screen width
     vertical_lines = []
 
     def __init__(self, **kwargs):
@@ -45,7 +45,7 @@ class MainWidget(Widget):
         # center_x = int(self.width / 2)
         # self.line.points = [center_x, 0, center_x, 100]
         central_line_x = int(self.width / 2)
-        offset = -int(self.V_LINES_NB / 2)
+        offset = .5 - self.V_LINES_NB / 2
         spacing = self.V_LINES_SPACING * self.width
         for i in range(0, self.V_LINES_NB):
             line_x = int(central_line_x + offset*spacing)
