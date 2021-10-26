@@ -12,3 +12,15 @@ MainWidget:
     perspective_point_y: self.height*0.75
     MenuWidget:
         id: menu_widget
+    Label:
+        text: root.score_txt
+        font_size: dp(18)
+        font_name: "fonts/Eurostile.ttf"
+        size_hint: .15, .15
+        pos_hint: {"x": 0, "top": 1}
+    Label:
+        text: root.best_score_txt
+        font_size: dp(14)
+        font_name: "fonts/Eurostile.ttf"
+        size_hint: .12, .12
+        pos_hint: {"x": 0, "top": .9}
