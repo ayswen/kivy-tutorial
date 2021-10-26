@@ -24,7 +24,7 @@ class MainWidget(Widget):
     current_y_loop = 0
 
     current_offset_x = 0
-    SPEED_X = 12
+    SPEED_X = 8
     current_speed_x = 0
 
     # self.line = None
@@ -210,13 +210,17 @@ class MainWidget(Widget):
         self.update_tiles()
         self.update_ship()
 
-        self.current_offset_y -= self.SPEED_Y * time_factor
+        speed_y = self.SPEED_Y * self.height / 500
+
+        self.current_offset_y -= speed_y * time_factor
         if self.current_offset_y <= -self.H_LINES_SPACING * self.height:
             self.current_offset_y = 0
             self.current_y_loop += 1
             self.generate_tiles_coordinates()
 
-        self.current_offset_x += self.current_speed_x * time_factor
+        speed_x = self.current_speed_x * self.width / 300
+
+        self.current_offset_x += speed_x * time_factor
 
 
 class GalaxyApp(App):
