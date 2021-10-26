@@ -17,7 +17,8 @@ class MainWidget(Widget):
     SPEED_Y = 2
 
     current_offset_x = 0
-    SPEED_X = 4
+    SPEED_X = 12
+    current_speed_x = 0
 
     # self.line = None
     V_LINES_NB = 12
@@ -118,6 +119,13 @@ class MainWidget(Widget):
 
         return int(tr_x), int(tr_y)
 
+    def on_touch_down(self, touch):
+        direction = 1 if touch.x < self.width / 2 else -1
+        self.current_speed_x = direction * self.SPEED_X
+
+    def on_touch_up(self, touch):
+        self.current_speed_x = 0
+
     def update(self, dt):
         """This function is supposed to be called every 60th of a second.
         However, when the hardware is busy the time interval between two calls
@@ -136,7 +144,7 @@ class MainWidget(Widget):
         if self.current_offset_y >= self.H_LINES_SPACING * self.height:
             self.current_offset_y = 0
 
-        self.current_offset_x += self.SPEED_X * time_factor
+        self.current_offset_x += self.current_speed_x * time_factor
 
 
 class GalaxyApp(App):
