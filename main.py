@@ -1,4 +1,5 @@
 from kivy.config import Config
+from random import randint
 Config.set('graphics', 'width', '800')
 Config.set('graphics', 'height', '350')
 from kivy import platform
@@ -31,11 +32,11 @@ class MainWidget(Widget):
     V_LINES_SPACING = .2  # as a percentage of screen width
     vertical_lines = []
 
-    H_LINES_NB = 10
+    H_LINES_NB = 15
     H_LINES_SPACING = .075  # as a percentage of screen height
     horizontal_lines = []
 
-    TILES_NB = 8
+    TILES_NB = 14
     tiles = []
     tiles_coordinates = []
 
@@ -64,8 +65,19 @@ class MainWidget(Widget):
                 self.tiles.append(Quad())
 
     def generate_tiles_coordinates(self):
-        for i in range(0, self.TILES_NB):
-            self.tiles_coordinates.append((0, i))
+        last_y = 0
+
+        for i in range(len(self.tiles_coordinates)-1, -1, -1):
+            if self.tiles_coordinates[i][1] < self.current_y_loop:
+                del self.tiles_coordinates[i]
+
+        if len(self.tiles_coordinates) > 0:
+            last_coordinates = self.tiles_coordinates[-1]
+            last_y = last_coordinates[1] + 1
+
+        for i in range(len(self.tiles_coordinates), self.TILES_NB):
+            self.tiles_coordinates.append((0, last_y))
+            last_y += 1
 
     def init_vertical_lines(self):
         with self.canvas:
@@ -156,6 +168,7 @@ class MainWidget(Widget):
         if self.current_offset_y <= -self.H_LINES_SPACING * self.height:
             self.current_offset_y = 0
             self.current_y_loop += 1
+            self.generate_tiles_coordinates()
 
         self.current_offset_x += self.current_speed_x * time_factor
 
