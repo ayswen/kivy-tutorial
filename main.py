@@ -11,7 +11,7 @@ from kivy.app import App
 from kivy.core.window import Window
 from kivy.graphics import Color, Line, Quad, Triangle
 # noinspection PyProtectedMember
-from kivy.properties import NumericProperty, Clock, ObjectProperty
+from kivy.properties import NumericProperty, Clock, ObjectProperty, StringProperty
 
 Builder.load_file("menu.kv")
 
@@ -55,6 +55,9 @@ class MainWidget(RelativeLayout):
 
     state_game_over = False
     game_has_started = False
+
+    menu_title = StringProperty("G   A   L   A   X   Y")
+    menu_button_title = StringProperty("START")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -273,6 +276,8 @@ class MainWidget(RelativeLayout):
         if not self.check_ship_collision() and not self.state_game_over:
             self.state_game_over = True
             self.menu_widget.opacity = 1
+            self.menu_title = "G  A  M  E    O  V  E  R"
+            self.menu_button_title = "RESTART"
             print("GAME OVER!!!")
 
     def on_menu_button_pressed(self):
