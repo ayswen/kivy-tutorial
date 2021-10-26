@@ -5,7 +5,7 @@ Config.set('graphics', 'height', '350')
 from kivy import platform
 from kivy.app import App
 from kivy.core.window import Window
-from kivy.graphics import Color, Line, Quad
+from kivy.graphics import Color, Line, Quad, Triangle
 # noinspection PyProtectedMember
 from kivy.properties import NumericProperty, Clock
 from kivy.uix.widget import Widget
@@ -40,11 +40,17 @@ class MainWidget(Widget):
     tiles = []
     tiles_coordinates = []
 
+    SHIP_WIDTH = .1  # as a percentage of screen width
+    SHIP_HEIGHT = .035  # as a percentage of screen height
+    SHIP_BASE_Y = .04  # as a percentage of screen height
+    ship = None
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.init_vertical_lines()
         self.init_horizontal_lines()
         self.init_tiles()
+        self.init_ship()
         self.prefill_tiles_coordinates()
 
         if self.is_desktop():
@@ -57,6 +63,21 @@ class MainWidget(Widget):
     # noinspection PyMethodMayBeStatic
     def is_desktop(self):
         return platform in ("linux", "win", "macosx")
+
+    def init_ship(self):
+        with self.canvas:
+            Color(0, 0, 0)
+            self.ship = Triangle()
+
+    def update_ship(self):
+        center_x = self.width/2
+        base_y = self.SHIP_BASE_Y * self.height
+        ship_half_width = self.SHIP_WIDTH * self.width / 2
+        ship_height = self.SHIP_HEIGHT * self.height
+        x1, y1 = self.transform(center_x - ship_half_width, base_y)
+        x2, y2 = self.transform(center_x, base_y + ship_height)
+        x3, y3 = self.transform(center_x + ship_half_width, base_y)
+        self.ship.points = [x1, y1, x2, y2, x3, y3]
 
     def init_tiles(self):
         with self.canvas:
@@ -187,6 +208,7 @@ class MainWidget(Widget):
         self.update_vertical_lines()
         self.update_horizontal_lines()
         self.update_tiles()
+        self.update_ship()
 
         self.current_offset_y -= self.SPEED_Y * time_factor
         if self.current_offset_y <= -self.H_LINES_SPACING * self.height:
