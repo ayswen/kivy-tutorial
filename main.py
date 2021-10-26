@@ -11,6 +11,10 @@ from kivy.uix.widget import Widget
 
 
 class MainWidget(Widget):
+    from transforms import transform, transform_2D, transform_perspective
+    from user_actions import on_touch_up, on_touch_down, keyboard_closed
+    from user_actions import on_keyboard_up, on_keyboard_down
+
     perspective_point_x = NumericProperty(0)
     perspective_point_y = NumericProperty(0)
 
@@ -42,33 +46,9 @@ class MainWidget(Widget):
 
         Clock.schedule_interval(self.update, 1 / 60)
 
-    def keyboard_closed(self):
-        self.keyboard.unbind(on_key_down=self.on_keyboard_down)
-        self.keyboard.unbind(on_key_up=self.on_keyboard_up)
-        self.keyboard = None
-
     # noinspection PyMethodMayBeStatic
     def is_desktop(self):
         return platform in ("linux", "win", "macosx")
-
-    def on_parent(self, widget, parent):
-        pass
-
-    def on_size(self, *args):
-        # self.perspective_point_x = self.width / 2
-        # self.perspective_point_y = self.width * .75
-        # print(f"ON SIZE => W: {self.width}, H: {self.height}")
-        # self.update_vertical_lines()
-        # self.update_horizontal_lines()
-        pass
-
-    def on_perspective_point_x(self, widget, value):
-        # print(f"PX: {self.perspective_point_x}")
-        pass
-
-    def on_perspective_point_y(self, widget, value):
-        # print(f"PY: {self.perspective_point_y}")
-        pass
 
     def init_vertical_lines(self):
         with self.canvas:
@@ -112,47 +92,6 @@ class MainWidget(Widget):
             x1, y1 = self.transform(x_min, line_y)
             x2, y2 = self.transform(x_max, line_y)
             self.horizontal_lines[i].points = [x1, y1, x2, y2]
-
-    def transform(self, x, y):
-        # return self.transform_2D(x, y)
-        return self.transform_perspective(x, y)
-
-    # noinspection PyPep8Naming,PyMethodMayBeStatic
-    def transform_2D(self, x, y):
-        return int(x), int(y)
-
-    def transform_perspective(self, x, y):
-        lin_y = y / self.height * self.perspective_point_y
-        if lin_y > self.perspective_point_y:
-            lin_y = self.perspective_point_y
-
-        diff_x = x - self.perspective_point_x
-        diff_y = self.perspective_point_y - lin_y
-        factor_y = (diff_y / self.perspective_point_y) ** 4
-
-        tr_x = self.perspective_point_x + diff_x * factor_y
-        tr_y = (1 - factor_y) * self.perspective_point_y
-
-        return int(tr_x), int(tr_y)
-
-    def on_touch_down(self, touch):
-        direction = 1 if touch.x < self.width / 2 else -1
-        self.current_speed_x = direction * self.SPEED_X
-
-    def on_touch_up(self, touch):
-        self.current_speed_x = 0
-
-    def on_keyboard_down(self, keyboard, keycode, text, modifiers):
-        if keycode[1] == 'left':
-            self.current_speed_x = self.SPEED_X
-        elif keycode[1] == 'right':
-            self.current_speed_x = -self.SPEED_X
-        return True
-
-    def on_keyboard_up(self, keyboard, keycode):
-        if keycode[1] == 'right' or keycode[1] == 'left':
-            self.current_speed_x = 0
-        return True
 
     def update(self, dt):
         """This function is supposed to be called every 60th of a second.
