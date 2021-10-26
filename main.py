@@ -112,9 +112,20 @@ class MainWidget(Widget):
         return int(tr_x), int(tr_y)
 
     def update(self, dt):
+        """This function is supposed to be called every 60th of a second.
+        However, when the hardware is busy the time interval between two calls
+        might be bigger. To account for that, we have dt which is the exact
+        time it took to get from the previous to the current iteration.
+        """
+        # ideal_dt = 1/60
+        # print(f"time variation : {round(abs( 100*(dt-ideal_dt)/ideal_dt ), 2)}%")
+
+        time_factor = dt * 60
+
         self.update_vertical_lines()
         self.update_horizontal_lines()
-        self.current_offset_y += self.SPEED
+
+        self.current_offset_y += self.SPEED * time_factor
         if self.current_offset_y >= self.H_LINES_SPACING * self.height:
             self.current_offset_y = 0
 
