@@ -1,5 +1,9 @@
 from kivy.config import Config
 from random import randint
+
+from kivy.lang import Builder
+from kivy.uix.relativelayout import RelativeLayout
+
 Config.set('graphics', 'width', '800')
 Config.set('graphics', 'height', '350')
 from kivy import platform
@@ -8,10 +12,11 @@ from kivy.core.window import Window
 from kivy.graphics import Color, Line, Quad, Triangle
 # noinspection PyProtectedMember
 from kivy.properties import NumericProperty, Clock
-from kivy.uix.widget import Widget
+
+Builder.load_file("menu.kv")
 
 
-class MainWidget(Widget):
+class MainWidget(RelativeLayout):
     from transforms import transform, transform_2D, transform_perspective
     from user_actions import on_touch_up, on_touch_down, keyboard_closed
     from user_actions import on_keyboard_up, on_keyboard_down
