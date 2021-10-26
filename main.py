@@ -1,12 +1,13 @@
+from kivy.config import Config
+Config.set('graphics', 'width', '800')
+Config.set('graphics', 'height', '350')
+from kivy import platform
 from kivy.app import App
+from kivy.core.window import Window
 from kivy.graphics import Color, Line
 # noinspection PyProtectedMember
 from kivy.properties import NumericProperty, Clock
 from kivy.uix.widget import Widget
-
-from kivy.config import Config
-Config.set('graphics', 'width', '800')
-Config.set('graphics', 'height', '350')
 
 
 class MainWidget(Widget):
@@ -33,7 +34,22 @@ class MainWidget(Widget):
         super().__init__(**kwargs)
         self.init_vertical_lines()
         self.init_horizontal_lines()
+
+        if self.is_desktop():
+            self.keyboard = Window.request_keyboard(self.keyboard_closed, self)
+            self.keyboard.bind(on_key_down=self.on_keyboard_down)
+            self.keyboard.bind(on_key_up=self.on_keyboard_up)
+
         Clock.schedule_interval(self.update, 1 / 60)
+
+    def keyboard_closed(self):
+        self.keyboard.unbind(on_key_down=self.on_keyboard_down)
+        self.keyboard.unbind(on_key_up=self.on_keyboard_up)
+        self.keyboard = None
+
+    # noinspection PyMethodMayBeStatic
+    def is_desktop(self):
+        return platform in ("linux", "win", "macosx")
 
     def on_parent(self, widget, parent):
         pass
@@ -125,6 +141,18 @@ class MainWidget(Widget):
 
     def on_touch_up(self, touch):
         self.current_speed_x = 0
+
+    def on_keyboard_down(self, keyboard, keycode, text, modifiers):
+        if keycode[1] == 'left':
+            self.current_speed_x = self.SPEED_X
+        elif keycode[1] == 'right':
+            self.current_speed_x = -self.SPEED_X
+        return True
+
+    def on_keyboard_up(self, keyboard, keycode):
+        if keycode[1] == 'right' or keycode[1] == 'left':
+            self.current_speed_x = 0
+        return True
 
     def update(self, dt):
         """This function is supposed to be called every 60th of a second.
