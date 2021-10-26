@@ -35,15 +35,16 @@ class MainWidget(Widget):
     H_LINES_SPACING = .075  # as a percentage of screen height
     horizontal_lines = []
 
-    tile = None
-    ti_x = 1
-    ti_y = 3
+    TILES_NB = 8
+    tiles = []
+    tiles_coordinates = []
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.init_vertical_lines()
         self.init_horizontal_lines()
         self.init_tiles()
+        self.generate_tiles_coordinates()
 
         if self.is_desktop():
             self.keyboard = Window.request_keyboard(self.keyboard_closed, self)
@@ -59,7 +60,12 @@ class MainWidget(Widget):
     def init_tiles(self):
         with self.canvas:
             Color(1, 1, 1)
-            self.tile = Quad()
+            for i in range(0, self.TILES_NB):
+                self.tiles.append(Quad())
+
+    def generate_tiles_coordinates(self):
+        for i in range(0, self.TILES_NB):
+            self.tiles_coordinates.append((0, i))
 
     def init_vertical_lines(self):
         with self.canvas:
@@ -92,15 +98,18 @@ class MainWidget(Widget):
         return x, y
 
     def update_tiles(self):
-        x_min, y_min = self.get_tile_coordinates(self.ti_x, self.ti_y)
-        x_max, y_max = self.get_tile_coordinates(self.ti_x+1, self.ti_y+1)
+        for i in range(0, self.TILES_NB):
+            ti_x, ti_y = self.tiles_coordinates[i]
 
-        x1, y1 = self.transform(x_min, y_min)
-        x2, y2 = self.transform(x_min, y_max)
-        x3, y3 = self.transform(x_max, y_max)
-        x4, y4 = self.transform(x_max, y_min)
+            x_min, y_min = self.get_tile_coordinates(ti_x, ti_y)
+            x_max, y_max = self.get_tile_coordinates(ti_x+1, ti_y+1)
 
-        self.tile.points = [x1, y1, x2, y2, x3, y3, x4, y4]
+            x1, y1 = self.transform(x_min, y_min)
+            x2, y2 = self.transform(x_min, y_max)
+            x3, y3 = self.transform(x_max, y_max)
+            x4, y4 = self.transform(x_max, y_min)
+
+            self.tiles[i].points = [x1, y1, x2, y2, x3, y3, x4, y4]
 
     def update_vertical_lines(self):
         # center_x = int(self.width / 2)
