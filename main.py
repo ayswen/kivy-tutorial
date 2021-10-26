@@ -4,13 +4,20 @@ from kivy.graphics import Color, Line
 from kivy.properties import NumericProperty, Clock
 from kivy.uix.widget import Widget
 
+from kivy.config import Config
+Config.set('graphics', 'width', '800')
+Config.set('graphics', 'height', '350')
+
 
 class MainWidget(Widget):
     perspective_point_x = NumericProperty(0)
     perspective_point_y = NumericProperty(0)
 
     current_offset_y = 0
-    SPEED = 2
+    SPEED_Y = 2
+
+    current_offset_x = 0
+    SPEED_X = 4
 
     # self.line = None
     V_LINES_NB = 12
@@ -25,7 +32,7 @@ class MainWidget(Widget):
         super().__init__(**kwargs)
         self.init_vertical_lines()
         self.init_horizontal_lines()
-        Clock.schedule_interval(self.update, 1/60)
+        Clock.schedule_interval(self.update, 1 / 60)
 
     def on_parent(self, widget, parent):
         pass
@@ -66,7 +73,7 @@ class MainWidget(Widget):
         offset = .5 - self.V_LINES_NB / 2
         spacing = self.V_LINES_SPACING * self.width
         for i in range(0, self.V_LINES_NB):
-            line_x = int(central_line_x + offset*spacing)
+            line_x = int(central_line_x + offset * spacing + self.current_offset_x)
 
             x1, y1 = self.transform(line_x, 0)
             x2, y2 = self.transform(line_x, self.height)
@@ -79,8 +86,8 @@ class MainWidget(Widget):
         offset = .5 - self.V_LINES_NB / 2
         spacing = self.V_LINES_SPACING * self.width
 
-        x_min = central_line_x + offset * spacing
-        x_max = central_line_x - offset * spacing
+        x_min = central_line_x + offset * spacing + self.current_offset_x
+        x_max = central_line_x - offset * spacing + self.current_offset_x
 
         for i in range(0, self.H_LINES_NB):
             line_y = i * self.H_LINES_SPACING * self.height - self.current_offset_y
@@ -104,7 +111,7 @@ class MainWidget(Widget):
 
         diff_x = x - self.perspective_point_x
         diff_y = self.perspective_point_y - lin_y
-        factor_y = (diff_y / self.perspective_point_y)**4
+        factor_y = (diff_y / self.perspective_point_y) ** 4
 
         tr_x = self.perspective_point_x + diff_x * factor_y
         tr_y = (1 - factor_y) * self.perspective_point_y
@@ -125,9 +132,11 @@ class MainWidget(Widget):
         self.update_vertical_lines()
         self.update_horizontal_lines()
 
-        self.current_offset_y += self.SPEED * time_factor
+        self.current_offset_y += self.SPEED_Y * time_factor
         if self.current_offset_y >= self.H_LINES_SPACING * self.height:
             self.current_offset_y = 0
+
+        self.current_offset_x += self.SPEED_X * time_factor
 
 
 class GalaxyApp(App):
