@@ -1,6 +1,7 @@
 from kivy.config import Config
 from random import randint
 
+from kivy.core.audio import SoundLoader
 from kivy.lang import Builder
 from kivy.uix.relativelayout import RelativeLayout
 
@@ -61,13 +62,23 @@ class MainWidget(RelativeLayout):
     score_txt = StringProperty("SCORE: 0")
     best_score_txt = StringProperty("BEST: 0")
 
+    sound_begin = None
+    sound_galaxy = None
+    sound_gameover_voice = None
+    sound_gameover_impact = None
+    sound_music1 = None
+    sound_restart = None
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.init_audio()
         self.init_vertical_lines()
         self.init_horizontal_lines()
         self.init_tiles()
         self.init_ship()
         self.prefill_tiles_coordinates()
+
+        self.sound_galaxy.play()
 
         if self.is_desktop():
             self.keyboard = Window.request_keyboard(self.keyboard_closed, self)
@@ -76,7 +87,29 @@ class MainWidget(RelativeLayout):
 
         Clock.schedule_interval(self.update, 1 / 60)
 
+    # noinspection PyMethodMayBeStatic
+    def init_audio(self):
+        self.sound_begin = SoundLoader.load("audio/begin.wav")
+        self.sound_galaxy = SoundLoader.load("audio/galaxy.wav")
+        self.sound_gameover_voice = SoundLoader.load("audio/gameover_voice.wav")
+        self.sound_gameover_impact = SoundLoader.load("audio/gameover_impact.wav")
+        self.sound_music1 = SoundLoader.load("audio/music1.wav")
+        self.sound_restart = SoundLoader.load("audio/restart.wav")
+
+        self.sound_begin.volume = .25
+        self.sound_galaxy.volume = .25
+        self.sound_gameover_voice.volume = .25
+        self.sound_gameover_impact.volume = .6
+        self.sound_music1.volume = 1
+        self.sound_restart.volume = .25
+
     def reset_game(self):
+        if self.state_game_over:
+            self.sound_restart.play()
+        else:
+            self.sound_begin.play()
+        self.sound_music1.play()
+
         self.current_offset_x = 0
         self.current_speed_x = 0
 
@@ -284,11 +317,19 @@ class MainWidget(RelativeLayout):
             self.current_offset_x += speed_x * time_factor
 
         if not self.check_ship_collision() and not self.state_game_over:
+            self.sound_gameover_impact.play()
+            self.sound_music1.stop()
+
             self.state_game_over = True
             self.menu_widget.opacity = 1
             self.menu_title = "G  A  M  E    O  V  E  R"
             self.menu_button_title = "RESTART"
+            Clock.schedule_once(self.play_game_over_voice_sound, 3)
             print("GAME OVER!!!")
+
+    def play_game_over_voice_sound(self):
+        if self.state_game_over:
+            self.sound_gameover_voice.play()
 
     def on_menu_button_pressed(self):
         print("BUTTON")
