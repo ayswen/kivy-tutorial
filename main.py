@@ -19,7 +19,8 @@ class MainWidget(Widget):
     perspective_point_y = NumericProperty(0)
 
     current_offset_y = 0
-    SPEED_Y = 2
+    SPEED_Y = 1
+    current_y_loop = 0
 
     current_offset_x = 0
     SPEED_X = 12
@@ -85,6 +86,7 @@ class MainWidget(Widget):
         return index * spacing_y + self.current_offset_y
 
     def get_tile_coordinates(self, ti_x, ti_y):
+        ti_y = ti_y - self.current_y_loop
         x = self.get_line_x_from_index(ti_x)
         y = self.get_line_y_from_index(ti_y)
         return x, y
@@ -141,11 +143,12 @@ class MainWidget(Widget):
         self.update_horizontal_lines()
         self.update_tiles()
 
-        # self.current_offset_y += self.SPEED_Y * time_factor
-        if self.current_offset_y >= self.H_LINES_SPACING * self.height:
+        self.current_offset_y -= self.SPEED_Y * time_factor
+        if self.current_offset_y <= -self.H_LINES_SPACING * self.height:
             self.current_offset_y = 0
+            self.current_y_loop += 1
 
-        # self.current_offset_x += self.current_speed_x * time_factor
+        self.current_offset_x += self.current_speed_x * time_factor
 
 
 class GalaxyApp(App):
