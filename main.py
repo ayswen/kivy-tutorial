@@ -65,6 +65,7 @@ class MainWidget(Widget):
                 self.tiles.append(Quad())
 
     def generate_tiles_coordinates(self):
+        last_x = 0
         last_y = 0
 
         for i in range(len(self.tiles_coordinates)-1, -1, -1):
@@ -73,10 +74,22 @@ class MainWidget(Widget):
 
         if len(self.tiles_coordinates) > 0:
             last_coordinates = self.tiles_coordinates[-1]
+            last_x = last_coordinates[0]
             last_y = last_coordinates[1] + 1
 
         for i in range(len(self.tiles_coordinates), self.TILES_NB):
-            self.tiles_coordinates.append((0, last_y))
+            r = randint(0, 2)
+            self.tiles_coordinates.append((last_x, last_y))
+            if r == 1:
+                last_x += 1
+                self.tiles_coordinates.append((last_x, last_y))
+                last_y += 1
+                self.tiles_coordinates.append((last_x, last_y))
+            elif r == 2:
+                last_x -= 1
+                self.tiles_coordinates.append((last_x, last_y))
+                last_y += 1
+                self.tiles_coordinates.append((last_x, last_y))
             last_y += 1
 
     def init_vertical_lines(self):
