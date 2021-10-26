@@ -1,12 +1,16 @@
 from kivy.app import App
 from kivy.graphics import Color, Line
-from kivy.properties import NumericProperty
+# noinspection PyProtectedMember
+from kivy.properties import NumericProperty, Clock
 from kivy.uix.widget import Widget
 
 
 class MainWidget(Widget):
     perspective_point_x = NumericProperty(0)
     perspective_point_y = NumericProperty(0)
+
+    current_offset_y = 0
+    SPEED = 2
 
     # self.line = None
     V_LINES_NB = 12
@@ -21,6 +25,7 @@ class MainWidget(Widget):
         super().__init__(**kwargs)
         self.init_vertical_lines()
         self.init_horizontal_lines()
+        Clock.schedule_interval(self.update, 1/60)
 
     def on_parent(self, widget, parent):
         pass
@@ -29,8 +34,9 @@ class MainWidget(Widget):
         # self.perspective_point_x = self.width / 2
         # self.perspective_point_y = self.width * .75
         # print(f"ON SIZE => W: {self.width}, H: {self.height}")
-        self.update_vertical_lines()
-        self.update_horizontal_lines()
+        # self.update_vertical_lines()
+        # self.update_horizontal_lines()
+        pass
 
     def on_perspective_point_x(self, widget, value):
         # print(f"PX: {self.perspective_point_x}")
@@ -77,7 +83,7 @@ class MainWidget(Widget):
         x_max = central_line_x - offset * spacing
 
         for i in range(0, self.H_LINES_NB):
-            line_y = i * self.H_LINES_SPACING * self.height
+            line_y = i * self.H_LINES_SPACING * self.height - self.current_offset_y
 
             x1, y1 = self.transform(x_min, line_y)
             x2, y2 = self.transform(x_max, line_y)
@@ -104,6 +110,13 @@ class MainWidget(Widget):
         tr_y = (1 - factor_y) * self.perspective_point_y
 
         return int(tr_x), int(tr_y)
+
+    def update(self, dt):
+        self.update_vertical_lines()
+        self.update_horizontal_lines()
+        self.current_offset_y += self.SPEED
+        if self.current_offset_y >= self.H_LINES_SPACING * self.height:
+            self.current_offset_y = 0
 
 
 class GalaxyApp(App):
