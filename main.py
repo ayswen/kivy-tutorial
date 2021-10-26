@@ -20,7 +20,7 @@ class MainWidget(Widget):
     perspective_point_y = NumericProperty(0)
 
     current_offset_y = 0
-    SPEED_Y = 5
+    SPEED_Y = 2
     current_y_loop = 0
 
     current_offset_x = 0
@@ -28,7 +28,7 @@ class MainWidget(Widget):
     current_speed_x = 0
 
     # self.line = None
-    V_LINES_NB = 4
+    V_LINES_NB = 10
     V_LINES_SPACING = .2  # as a percentage of screen width
     vertical_lines = []
 
@@ -45,7 +45,7 @@ class MainWidget(Widget):
         self.init_vertical_lines()
         self.init_horizontal_lines()
         self.init_tiles()
-        self.generate_tiles_coordinates()
+        self.prefill_tiles_coordinates()
 
         if self.is_desktop():
             self.keyboard = Window.request_keyboard(self.keyboard_closed, self)
@@ -63,6 +63,11 @@ class MainWidget(Widget):
             Color(1, 1, 1)
             for i in range(0, self.TILES_NB):
                 self.tiles.append(Quad())
+
+    def prefill_tiles_coordinates(self):
+        self.tiles_coordinates = [(0, i) for i in range(10)]
+        for i in range(self.TILES_NB-10):
+            self.generate_tiles_coordinates()
 
     def generate_tiles_coordinates(self):
         start_index = -int(self.V_LINES_NB / 2) + 1
@@ -83,7 +88,6 @@ class MainWidget(Widget):
             r = randint(0, 2)
             if last_x <= start_index:
                 r = 1
-            print(last_x+1, end_index)
             if last_x+1 >= end_index:
                 r = 2
             self.tiles_coordinates.append((last_x, last_y))
