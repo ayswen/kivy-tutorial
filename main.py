@@ -4,7 +4,7 @@ Config.set('graphics', 'height', '350')
 from kivy import platform
 from kivy.app import App
 from kivy.core.window import Window
-from kivy.graphics import Color, Line
+from kivy.graphics import Color, Line, Quad
 # noinspection PyProtectedMember
 from kivy.properties import NumericProperty, Clock
 from kivy.uix.widget import Widget
@@ -34,10 +34,15 @@ class MainWidget(Widget):
     H_LINES_SPACING = .075  # as a percentage of screen height
     horizontal_lines = []
 
+    tile = None
+    ti_x = 1
+    ti_y = 3
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.init_vertical_lines()
         self.init_horizontal_lines()
+        self.init_tiles()
 
         if self.is_desktop():
             self.keyboard = Window.request_keyboard(self.keyboard_closed, self)
@@ -49,6 +54,11 @@ class MainWidget(Widget):
     # noinspection PyMethodMayBeStatic
     def is_desktop(self):
         return platform in ("linux", "win", "macosx")
+
+    def init_tiles(self):
+        with self.canvas:
+            Color(1, 1, 1)
+            self.tile = Quad()
 
     def init_vertical_lines(self):
         with self.canvas:
@@ -73,6 +83,22 @@ class MainWidget(Widget):
     def get_line_y_from_index(self, index):
         spacing_y = self.H_LINES_SPACING * self.height
         return index * spacing_y + self.current_offset_y
+
+    def get_tile_coordinates(self, ti_x, ti_y):
+        x = self.get_line_x_from_index(ti_x)
+        y = self.get_line_y_from_index(ti_y)
+        return x, y
+
+    def update_tiles(self):
+        x_min, y_min = self.get_tile_coordinates(self.ti_x, self.ti_y)
+        x_max, y_max = self.get_tile_coordinates(self.ti_x+1, self.ti_y+1)
+
+        x1, y1 = self.transform(x_min, y_min)
+        x2, y2 = self.transform(x_min, y_max)
+        x3, y3 = self.transform(x_max, y_max)
+        x4, y4 = self.transform(x_max, y_min)
+
+        self.tile.points = [x1, y1, x2, y2, x3, y3, x4, y4]
 
     def update_vertical_lines(self):
         # center_x = int(self.width / 2)
@@ -113,12 +139,13 @@ class MainWidget(Widget):
 
         self.update_vertical_lines()
         self.update_horizontal_lines()
+        self.update_tiles()
 
-        self.current_offset_y += self.SPEED_Y * time_factor
+        # self.current_offset_y += self.SPEED_Y * time_factor
         if self.current_offset_y >= self.H_LINES_SPACING * self.height:
             self.current_offset_y = 0
 
-        self.current_offset_x += self.current_speed_x * time_factor
+        # self.current_offset_x += self.current_speed_x * time_factor
 
 
 class GalaxyApp(App):
