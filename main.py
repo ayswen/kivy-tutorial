@@ -20,7 +20,7 @@ class MainWidget(Widget):
     perspective_point_y = NumericProperty(0)
 
     current_offset_y = 0
-    SPEED_Y = 1
+    SPEED_Y = 5
     current_y_loop = 0
 
     current_offset_x = 0
@@ -28,7 +28,7 @@ class MainWidget(Widget):
     current_speed_x = 0
 
     # self.line = None
-    V_LINES_NB = 12
+    V_LINES_NB = 4
     V_LINES_SPACING = .2  # as a percentage of screen width
     vertical_lines = []
 
@@ -65,6 +65,8 @@ class MainWidget(Widget):
                 self.tiles.append(Quad())
 
     def generate_tiles_coordinates(self):
+        start_index = -int(self.V_LINES_NB / 2) + 1
+        end_index = start_index + self.V_LINES_NB - 1
         last_x = 0
         last_y = 0
 
@@ -79,6 +81,11 @@ class MainWidget(Widget):
 
         for i in range(len(self.tiles_coordinates), self.TILES_NB):
             r = randint(0, 2)
+            if last_x <= start_index:
+                r = 1
+            print(last_x+1, end_index)
+            if last_x+1 >= end_index:
+                r = 2
             self.tiles_coordinates.append((last_x, last_y))
             if r == 1:
                 last_x += 1
