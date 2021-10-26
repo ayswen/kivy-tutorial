@@ -63,31 +63,38 @@ class MainWidget(Widget):
             for i in range(0, self.H_LINES_NB):
                 self.horizontal_lines.append(Line())
 
+    def get_line_x_from_index(self, index):
+        central_line_x = self.perspective_point_x
+        spacing_x = self.V_LINES_SPACING * self.width
+        offset = index - .5
+        line_x = central_line_x + offset * spacing_x + self.current_offset_x
+        return line_x
+
+    def get_line_y_from_index(self, index):
+        spacing_y = self.H_LINES_SPACING * self.height
+        return index * spacing_y + self.current_offset_y
+
     def update_vertical_lines(self):
         # center_x = int(self.width / 2)
+        start_index = -int(self.V_LINES_NB / 2) + 1
+        end_index = start_index + self.V_LINES_NB
         # self.line.points = [center_x, 0, center_x, 100]
-        central_line_x = int(self.width / 2)
-        offset = .5 - self.V_LINES_NB / 2
-        spacing = self.V_LINES_SPACING * self.width
-        for i in range(0, self.V_LINES_NB):
-            line_x = int(central_line_x + offset * spacing + self.current_offset_x)
+        for i in range(start_index, end_index):
+            line_x = self.get_line_x_from_index(i)
 
             x1, y1 = self.transform(line_x, 0)
             x2, y2 = self.transform(line_x, self.height)
             self.vertical_lines[i].points = [x1, y1, x2, y2]
 
-            offset += 1
-
     def update_horizontal_lines(self):
-        central_line_x = int(self.width / 2)
-        offset = .5 - self.V_LINES_NB / 2
-        spacing = self.V_LINES_SPACING * self.width
+        start_index = -int(self.V_LINES_NB / 2) + 1
+        end_index = start_index + self.V_LINES_NB - 1
 
-        x_min = central_line_x + offset * spacing + self.current_offset_x
-        x_max = central_line_x - offset * spacing + self.current_offset_x
+        x_min = self.get_line_x_from_index(start_index)
+        x_max = self.get_line_x_from_index(end_index)
 
         for i in range(0, self.H_LINES_NB):
-            line_y = i * self.H_LINES_SPACING * self.height - self.current_offset_y
+            line_y = self.get_line_y_from_index(i)
 
             x1, y1 = self.transform(x_min, line_y)
             x2, y2 = self.transform(x_max, line_y)
